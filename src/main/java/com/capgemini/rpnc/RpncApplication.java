@@ -10,4 +10,7 @@ public class RpncApplication {
 		SpringApplication.run(RpncApplication.class, args);
 	}
 
+	public String calculate(String rpnEquation) {
+		return null;
+	}
 }
