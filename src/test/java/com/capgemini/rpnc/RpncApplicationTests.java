@@ -31,16 +31,27 @@ class RpncApplicationTests {
 				Arguments.of("1.0 2.0 +", "3.0"),
 				Arguments.of("3 4 *", "12.0"),
 				Arguments.of("6 3 * 2 - sqrt", "4.0"),
-				Arguments.of("1 + 1", "1 + 1 - Not Reverse Polish Notation try backwards"),
 				Arguments.of("4 2 - 2 - 1000 *", "0.0"),
 				Arguments.of("0 sin", "0.0"),
 				Arguments.of("0 cos", "1.0"),
 				Arguments.of("2 4 avg", "3.0"),
 				Arguments.of("10 3 mod", "1.0"),
 				Arguments.of("6 3 /", "2.0"),
-				Arguments.of("2 3 + 5 *", "10.0"),
-				Arguments.of("25 sqrt", "5.0"),
-				Arguments.of("25 sqrt", "5.0")
+				Arguments.of("2 3 + 5 *", "25.0"),
+				//Negative Scenarios
+				Arguments.of("", ""),
+				Arguments.of(null, ""),
+				Arguments.of("1 + 1", "1 + 1 - Not Reverse Polish Notation try backwards"),
+				Arguments.of("1", "1  Valid operation not found in equation"),
+				Arguments.of("sin", "sin - Not Reverse Polish Notation try backwards"),
+				Arguments.of("test - Valid operation not found in equation"),
+				Arguments.of("1 1 test - Valid operation not found in equation"),
+				Arguments.of("1 0 / - not sure at the moment"), // ToDo: Math error operation
+				Arguments.of("1 & 1 - Valid operation not found in equation"),
+				Arguments.of("1 1 + 5 # - Not a valid equation"),
+				Arguments.of("sin cos", "Not a valid equation"),
+				Arguments.of("+ -", "Not a valid equation")
+
 		);
 	}
 }
