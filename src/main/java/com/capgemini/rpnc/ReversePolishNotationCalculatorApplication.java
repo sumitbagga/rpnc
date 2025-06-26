@@ -6,12 +6,12 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.List;
 
 @SpringBootApplication
 @Slf4j
@@ -29,7 +29,8 @@ public class ReversePolishNotationCalculatorApplication implements CommandLineRu
         }
 
         try {
-            List<String> lines = Files.readAllLines(Paths.get(getResourceURI(args[0])));
+            Path filePath = resolveFilePath(args[0]);
+            List<String> lines = Files.readAllLines(filePath);
             ReversePolishNotationCalculatorService service = new ReversePolishNotationCalculatorService();
             for (String line : lines) {
                 log.info("{} = {}", line, service.calculate(line));
@@ -39,19 +40,22 @@ public class ReversePolishNotationCalculatorApplication implements CommandLineRu
         }
     }
 
-    public static URI getResourceURI(String fileName) {
-        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-        URL resource = classLoader.getResource(fileName);
-
-        if (resource == null) {
-            throw new IllegalArgumentException("File not found: " + fileName);
+    private Path resolveFilePath(String fileName) {
+        Path localPath = Paths.get(fileName);
+        if (Files.exists(localPath)) {
+            return localPath;
         }
 
-        try {
-            return resource.toURI();
-        } catch (URISyntaxException e) {
-            throw new RuntimeException("Invalid URI for file: " + fileName, e);
+        URL resource = getClass().getClassLoader().getResource(fileName);
+        if (resource != null) {
+            try {
+                return Paths.get(resource.toURI());
+            } catch (URISyntaxException e) {
+                throw new RuntimeException("Invalid URI for file: " + fileName, e);
+            }
         }
+
+        throw new IllegalArgumentException("File not found: " + fileName);
     }
 }
 

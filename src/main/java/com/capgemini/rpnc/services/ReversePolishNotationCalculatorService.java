@@ -27,7 +27,9 @@ public class ReversePolishNotationCalculatorService {
 
         for (String token : tokens) {
             if (BINARY_OPERATORS.contains(token)) {
-                if (stack.size() < 2) return equation + " - Not Reverse Polish Notation try backwards";
+                if (stack.size() < 2) {
+                    return equation + " - Not Reverse Polish Notation try backwards";
+                }
                 double b = stack.pop();
                 double a = stack.pop();
                 stack.push(switch (token) {
@@ -40,7 +42,9 @@ public class ReversePolishNotationCalculatorService {
                     default -> throw new IllegalStateException("Unexpected value: " + token);
                 });
             } else if (UNARY_OPERATORS.contains(token)) {
-                if (stack.isEmpty()) return equation + " - Not Reverse Polish Notation try backwards";
+                if (stack.isEmpty()){
+                    return equation + " - Not Reverse Polish Notation try backwards";
+                }
                 double a = stack.pop();
                 stack.push(switch (token) {
                     case "sqrt" -> Math.sqrt(a);
