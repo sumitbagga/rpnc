@@ -32,26 +32,13 @@ public class ReversePolishNotationCalculatorService {
                 }
                 double b = stack.pop();
                 double a = stack.pop();
-                stack.push(switch (token) {
-                    case "+" -> a + b;
-                    case "-" -> a - b;
-                    case "*" -> a * b;
-                    case "/" -> a / b;
-                    case "avg" -> (a + b) / 2;
-                    case "mod" -> a % b;
-                    default -> throw new IllegalStateException("Unexpected value: " + token);
-                });
+                stack.push(performBinaryOperation(token, a, b));
             } else if (UNARY_OPERATORS.contains(token)) {
                 if (stack.isEmpty()){
                     return equation + " - Not Reverse Polish Notation try backwards";
                 }
                 double a = stack.pop();
-                stack.push(switch (token) {
-                    case "sqrt" -> Math.sqrt(a);
-                    case "sin" -> Math.sin(a);
-                    case "cos" -> Math.cos(a);
-                    default -> throw new IllegalStateException("Unexpected value: " + token);
-                });
+                stack.push(performUnaryOperation(token, a));
             } else {
                 try {
                     stack.push(Double.parseDouble(token));
@@ -62,6 +49,27 @@ public class ReversePolishNotationCalculatorService {
         }
         return String.valueOf(stack.pop());
 
+    }
+
+    private static Double performUnaryOperation(String token, double a) {
+        return switch (token) {
+            case "sqrt" -> Math.sqrt(a);
+            case "sin" -> Math.sin(a);
+            case "cos" -> Math.cos(a);
+            default -> throw new IllegalStateException("Unexpected value: " + token);
+        };
+    }
+
+    private static Double performBinaryOperation(String operation, double a, double b) {
+        return switch (operation) {
+            case "+" -> a + b;
+            case "-" -> a - b;
+            case "*" -> a * b;
+            case "/" -> a / b;
+            case "avg" -> (a + b) / 2;
+            case "mod" -> a % b;
+            default -> throw new IllegalStateException("Unexpected value: " + operation);
+        };
     }
 
     private String validateTokens(String expression, String[] tokens) {
