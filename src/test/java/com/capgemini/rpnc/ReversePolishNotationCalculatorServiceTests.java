@@ -39,10 +39,16 @@ class ReversePolishNotationCalculatorServiceTests {
 				Arguments.of("6 3 /", "2.0"),
 				Arguments.of("2 3 + 5 *", "25.0"),
 				Arguments.of("1 0 /", "Infinity"),
+				Arguments.of("3 3 + 0 sin +", "6.0"),
+				Arguments.of("3 3 - sin", "0.0"),
+				Arguments.of("0 sin 0 cos avg 1 + 3 +", "4.5"),
+				Arguments.of("0 cos 1 +", "2.0"),
+
 				//Negative Scenarios
 				Arguments.of("", " is Not a valid equation"),
 				Arguments.of(null, ""),
 				Arguments.of("1", "1 is Not a valid equation"),
+				Arguments.of("1 1", "1 1 - Valid operation not found in equation"),
 				Arguments.of("sin", "sin is Not a valid equation"),
 				Arguments.of("test", "test is Not a valid equation"),
 				Arguments.of("1 + 1", "1 + 1 - Not Reverse Polish Notation try backwards"),
@@ -50,7 +56,16 @@ class ReversePolishNotationCalculatorServiceTests {
 				Arguments.of("1 & 1", "1 & 1 - Valid operation not found in equation"),
 				Arguments.of("1 1 + 5 #", "1 1 + 5 # is Not a valid equation"),
 				Arguments.of("sin cos", "Not found any number in equation"),
-				Arguments.of("+ -", "Not found any number in equation")
+				Arguments.of("+ -", "Not found any number in equation"),
+				Arguments.of("3 3 3 + 0 0 sin", "3 3 3 + 0 0 sin - Not Reverse Polish Notation try backwards"),
+				Arguments.of("3 3 + 0 0 sin", "3 3 + 0 0 sin - Not Reverse Polish Notation try backwards"),
+				Arguments.of("3 3 + 0 sin", "3 3 + 0 sin - Not Reverse Polish Notation try backwards"),
+				Arguments.of("3 3 + 0 sin", "3 3 + 0 sin - Not Reverse Polish Notation try backwards"),
+				Arguments.of("0 0 sin + 3 3 3 +", "0 0 sin + 3 3 3 + - Not Reverse Polish Notation try backwards"),
+				Arguments.of("0 sin + 3 3 3 +", "0 sin + 3 3 3 + - Not Reverse Polish Notation try backwards"),
+				Arguments.of("0 sin + 3 3 3", "0 sin + 3 3 3 - Not Reverse Polish Notation try backwards"),
+				Arguments.of("0 sin + 3 3 +", "0 sin + 3 3 + - Not Reverse Polish Notation try backwards"),
+				Arguments.of("0 sin 3 3 +", "0 sin 3 3 + - Not Reverse Polish Notation try backwards")
 		);
 	}
 }

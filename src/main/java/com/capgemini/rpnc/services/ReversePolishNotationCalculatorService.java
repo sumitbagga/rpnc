@@ -47,7 +47,8 @@ public class ReversePolishNotationCalculatorService {
                 }
             }
         }
-        return String.valueOf(stack.pop());
+
+        return stack.size() == 1 ? String.valueOf(stack.pop()) : equation + " - Not Reverse Polish Notation try backwards";
 
     }
 
