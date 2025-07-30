@@ -1,16 +1,29 @@
 package com.capgemini.rpnc.services;
 
+import com.capgemini.rpnc.utils.BinaryOperation;
+import com.capgemini.rpnc.utils.PerformOperation;
+import com.capgemini.rpnc.utils.UnaryOperation;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayDeque;
 import java.util.Arrays;
-import java.util.Set;
+import java.util.Map;
 
 @Service
 public class ReversePolishNotationCalculatorService {
-    private static final Set<String> BINARY_OPERATORS = Set.of("+", "-", "*", "/", "avg", "mod");
-    private static final Set<String> UNARY_OPERATORS = Set.of("sqrt", "sin", "cos");
+
+    private static final Map<String, PerformOperation> OPERATIONS = Map.of(
+            "+", new BinaryOperation(Double::sum),
+            "-", new BinaryOperation((a, b) -> a - b),
+            "*", new BinaryOperation((a, b) -> a * b),
+            "/", new BinaryOperation((a, b) -> a / b),
+            "avg", new BinaryOperation((a, b) -> (a + b) / 2),
+            "mod", new BinaryOperation((a, b) -> a % b),
+            "sqrt", new UnaryOperation(Math::sqrt),
+            "sin", new UnaryOperation(Math::sin),
+            "cos", new UnaryOperation(Math::cos)
+    );
 
     public String calculate(String equation) {
         if (equation == null) return "";
@@ -18,77 +31,51 @@ public class ReversePolishNotationCalculatorService {
         String[] tokens = equation.trim().split("\\s+");
 
         String validationMessage = validateTokens(equation, tokens);
-
         if (validationMessage != null) {
             return validationMessage;
         }
 
         ArrayDeque<Double> stack = new ArrayDeque<>();
 
-        for (String token : tokens) {
-            if (BINARY_OPERATORS.contains(token)) {
-                if (stack.size() < 2) {
-                    return equation + " - Not Reverse Polish Notation try backwards";
+        for (String token: tokens) {
+            PerformOperation op = OPERATIONS.get(token);
+            if (op != null) {
+                if (stack.size() < op.arity()) {
+                    return error(equation, "Not Reverse Polish Notation try backwards");
                 }
-                double b = stack.pop();
-                double a = stack.pop();
-                stack.push(performBinaryOperation(token, a, b));
-            } else if (UNARY_OPERATORS.contains(token)) {
-                if (stack.isEmpty()){
-                    return equation + " - Not Reverse Polish Notation try backwards";
+                double[] args = new double[op.arity()];
+                for (int i = op.arity() - 1; i >= 0; i--) {
+                    args[i] = stack.pop();
                 }
-                double a = stack.pop();
-                stack.push(performUnaryOperation(token, a));
+                stack.push(op.apply(args));
             } else {
                 try {
                     stack.push(Double.parseDouble(token));
                 } catch (NumberFormatException e) {
-                    return equation + " is Not a valid equation";
+                    return equation + " is not a valid equation";
                 }
             }
         }
 
-        return stack.size() == 1 ? String.valueOf(stack.pop()) : equation + " - Not Reverse Polish Notation try backwards";
-
-    }
-
-    private static Double performUnaryOperation(String token, double a) {
-        return switch (token) {
-            case "sqrt" -> Math.sqrt(a);
-            case "sin" -> Math.sin(a);
-            case "cos" -> Math.cos(a);
-            default -> throw new IllegalStateException("Unexpected value: " + token);
-        };
-    }
-
-    private static Double performBinaryOperation(String operation, double a, double b) {
-        return switch (operation) {
-            case "+" -> a + b;
-            case "-" -> a - b;
-            case "*" -> a * b;
-            case "/" -> a / b;
-            case "avg" -> (a + b) / 2;
-            case "mod" -> a % b;
-            default -> throw new IllegalStateException("Unexpected value: " + operation);
-        };
+        return stack.size() == 1
+                ? String.valueOf(stack.pop())
+                : error(equation, "Not Reverse Polish Notation try backwards");
     }
 
     private String validateTokens(String expression, String[] tokens) {
         if (tokens.length <= 1) {
-            return expression + " is Not a valid equation";
-        } else if (!containsValidOperator(tokens)) {
+            return expression + " is not a valid equation";
+        }
+        if (Arrays.stream(tokens).noneMatch(OPERATIONS::containsKey)) {
             return expression + " - Valid operation not found in equation";
-        } else if (!containsValidNumber(tokens)) {
-            return  "Not found any number in equation";
+        }
+        if (Arrays.stream(tokens).noneMatch(NumberUtils::isCreatable)) {
+            return "Not found any number in the equation";
         }
         return null;
     }
 
-    private boolean containsValidNumber(String[] tokens) {
-        return Arrays.stream(tokens).anyMatch(NumberUtils::isCreatable);
-    }
-
-    private boolean containsValidOperator(String[] tokens) {
-        return Arrays.stream(tokens).anyMatch(token -> BINARY_OPERATORS.contains(token) || UNARY_OPERATORS.contains(token));
+    private String error(String equation, String message) {
+        return equation + " - " + message;
     }
 }
